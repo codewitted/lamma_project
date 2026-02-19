@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Dict, Any
 
 class PDDLGenerator:
@@ -7,8 +8,19 @@ class PDDLGenerator:
     Suitable for integration with Fast Downward or ROS2 planning nodes.
     """
     
-    @staticmethod
-    def generate_problem_skeleton(data: Dict[str, Any], problem_name: str = "robotics_task") -> str:
+    def __init__(self):
+        # Load robot profiles
+        profiles_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'config', 'robot_profiles.json'
+        )
+        try:
+            with open(profiles_path, 'r') as f:
+                self.profiles = json.load(f)
+        except Exception:
+            self.profiles = {}
+    
+    def generate_problem_skeleton(self, data: Dict[str, Any], problem_name: str = "robotics_task") -> str:
         # Extract robots explicitly
         robots = set(data.get("robots", []))
         if not robots:
@@ -63,6 +75,19 @@ class PDDLGenerator:
         init_preds = ""
         for p in initial_state:
             init_preds += f"    {format_predicate(p)}\n"
+            
+        # Add robot capabilities
+        for r in robots:
+            # Try to find profile by name or substring (e.g. limo_1 -> limo_standard)
+            profile_name = "limo_standard" # Default
+            for p_name in self.profiles:
+                if p_name in r:
+                    profile_name = p_name
+                    break
+            
+            profile = self.profiles.get(profile_name, {})
+            for cap in profile.get("capabilities", []):
+                init_preds += f"    ({cap} {r})\n"
 
         # Convert goal predicates
         goals = ""
@@ -92,4 +117,5 @@ if __name__ == "__main__":
         "robots": ["turtlebot3_1"],
         "goal_predicates": ["at(red_block, workbench)", "on(red_block, workbench)"]
     }
-    print(PDDLGenerator.generate_problem_skeleton(example_data))
+    generator = PDDLGenerator()
+    print(generator.generate_problem_skeleton(example_data))

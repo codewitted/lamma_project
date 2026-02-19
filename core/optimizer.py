@@ -1,4 +1,6 @@
 import pulp
+import json
+import os
 from typing import List, Dict, Any
 
 class MILPOptimizer:
@@ -8,7 +10,16 @@ class MILPOptimizer:
     """
 
     def __init__(self):
-        pass
+        # Load robot profiles
+        profiles_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'config', 'robot_profiles.json'
+        )
+        try:
+            with open(profiles_path, 'r') as f:
+                self.profiles = json.load(f)
+        except Exception:
+            self.profiles = {}
 
     def allocate_tasks(self, robots: List[str], tasks: List[str], costs: Dict[str, Dict[str, float]], capabilities: Dict[str, List[str]]) -> Dict[str, List[str]]:
         """
@@ -33,13 +44,40 @@ class MILPOptimizer:
             prob += pulp.lpSum([x[r][t] for r in robots]) == 1
 
         # Constraint 2: Robot must have the capability for the assigned task
-        # (Assuming task name contains type or we have a map)
         for r in robots:
+            # Match robot instance to profile
+            profile_name = "limo_standard"
+            for p_name in self.profiles:
+                if p_name in r:
+                    profile_name = p_name
+                    break
+            profile = self.profiles.get(profile_name, {})
+            caps = profile.get("capabilities", [])
+            
             for t in tasks:
-                # Simple check: if robot doesn't have capability, variable must be 0
-                # In a real scenario, we'd map tasks to types.
-                # For now, let's assume all robots can do all tasks unless specified.
-                pass
+                # If task requires manipulation but robot lacks it, forbid assignment
+                if "pick" in t or "place" in t or "open" in t:
+                    if "can_manipulate" not in caps:
+                        prob += x[r][t] == 0
+                # If task requires sensing but robot lacks it, forbid assignment
+                if "detect" in t or "search" in t:
+                    if "can_sense" not in caps:
+                        prob += x[r][t] == 0
+
+        # Constraint 3: Battery constraints
+        # Assume energy cost is proportional to travel cost + fixed task cost
+        for r in robots:
+            profile_name = "limo_standard"
+            for p_name in self.profiles:
+                if p_name in r:
+                    profile_name = p_name
+                    break
+            profile = self.profiles.get(profile_name, {})
+            # Battery in Wh converted to arbitrary cost units for demo
+            capacity = profile.get("battery_capacity_wh", 150) / 10.0 
+            
+            # Simple energy model: cost[r][t] is the energy consumed
+            prob += pulp.lpSum([costs[r][t] * x[r][t] for t in tasks]) <= capacity
 
         # Solve the problem
         prob.solve(pulp.PULP_CBC_CMD(msg=0))

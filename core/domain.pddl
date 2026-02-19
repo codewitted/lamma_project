@@ -17,6 +17,8 @@
     (switchedOff ?obj - target)
     (is_openable ?obj - target)
     (is_toggleable ?obj - target)
+    (can_manipulate ?r - robot)
+    (can_sense ?r - robot)
   )
 
   (:action move_to
@@ -26,36 +28,36 @@
 
   (:action pick_up
     :parameters (?r - robot ?obj - target ?loc - target)
-    :precondition (and (at ?r ?loc) (at ?obj ?loc) (not (holding ?r ?obj))) ; simplified check
+    :precondition (and (at ?r ?loc) (at ?obj ?loc) (not (holding ?r ?obj)) (can_manipulate ?r)) ; simplified check
     :effect (and (holding ?r ?obj) (not (at ?obj ?loc))))
 
   (:action open
     :parameters (?r - robot ?obj - target)
-    :precondition (and (at ?r ?obj) (is_openable ?obj) (closed ?obj))
+    :precondition (and (at ?r ?obj) (is_openable ?obj) (closed ?obj) (can_manipulate ?r))
     :effect (and (opened ?obj) (not (closed ?obj))))
 
   (:action close
     :parameters (?r - robot ?obj - target)
-    :precondition (and (at ?r ?obj) (is_openable ?obj) (opened ?obj))
+    :precondition (and (at ?r ?obj) (is_openable ?obj) (opened ?obj) (can_manipulate ?r))
     :effect (and (closed ?obj) (not (opened ?obj))))
 
   (:action switch_on
     :parameters (?r - robot ?obj - target)
-    :precondition (and (at ?r ?obj) (is_toggleable ?obj) (switchedOff ?obj))
+    :precondition (and (at ?r ?obj) (is_toggleable ?obj) (switchedOff ?obj) (can_manipulate ?r))
     :effect (and (switchedOn ?obj) (not (switchedOff ?obj))))
 
   (:action switch_off
     :parameters (?r - robot ?obj - target)
-    :precondition (and (at ?r ?obj) (is_toggleable ?obj) (switchedOn ?obj))
+    :precondition (and (at ?r ?obj) (is_toggleable ?obj) (switchedOn ?obj) (can_manipulate ?r))
     :effect (and (switchedOff ?obj) (not (switchedOn ?obj))))
 
   (:action place
     :parameters (?r - robot ?obj - target ?loc - target)
-    :precondition (and (at ?r ?loc) (holding ?r ?obj))
+    :precondition (and (at ?r ?loc) (holding ?r ?obj) (can_manipulate ?r))
     :effect (and (at ?obj ?loc) (not (holding ?r ?obj))))
 
   (:action drop
     :parameters (?r - robot ?obj - target ?loc - target)
-    :precondition (and (at ?r ?loc) (holding ?r ?obj))
+    :precondition (and (at ?r ?loc) (holding ?r ?obj) (can_manipulate ?r))
     :effect (and (at ?obj ?loc) (not (holding ?r ?obj))))
 )

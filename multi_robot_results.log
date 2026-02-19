@@ -1,0 +1,25 @@
+INFO:root:Initialize return: {'cameraNearPlane': 0.009999999776482582, 'cameraFarPlane': 20.0}
+INFO:root:AI2-THOR Controller initialized on scene FloorPlan1
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:root:Step 1: Executing move_to limo_heavy1 unknown floor2_lab_workbench
+INFO:root:Moved robot to floor2_lab_workbench at {'x': 0, 'y': 0, 'z': 0}
+INFO:root:Step 2: Executing move_to limo_heavy1 floor2_lab_workbench floor6_hallway
+INFO:root:Moved robot to floor6_hallway at {'x': 0.0, 'y': 0.95, 'z': 0.0}
+INFO:root:Step 3: Executing pick_up limo_heavy1 red_block floor6_hallway
+INFO:root:Robot picking up red_block
+INFO:root:Step 4: Executing move_to limo_heavy1 floor6_hallway floor2_lab_workbench
+INFO:root:Moved robot to floor2_lab_workbench at {'x': 0, 'y': 0, 'z': 0}
+INFO:root:Step 5: Executing drop limo_heavy1 red_block floor2_lab_workbench
+🚀 Starting Heterogeneous Multi-Robot Demonstration
+
+--- [Step 1: LLM Semantic Reasoning] ---
+Parsed Entities: ['red_block', 'floor6_hallway', 'floor2_lab_workbench'] | Robots: ['limo_scout1', 'limo_heavy1']
+
+--- [Step 2: MILP Global Optimization (Energy Aware)] ---
+Allocations: {'limo_scout1': ['search_red_block', 'move_to_lab'], 'limo_heavy1': ['pick_up_red_block', 'place_on_workbench']}
+
+--- [Step 3: Symbolic Planning for Multi-Robot] ---
+Sequential Plan Found: ['move_to limo_heavy1 unknown floor2_lab_workbench', 'move_to limo_heavy1 floor2_lab_workbench floor6_hallway', 'pick_up limo_heavy1 red_block floor6_hallway', 'move_to limo_heavy1 floor6_hallway floor2_lab_workbench', 'drop limo_heavy1 red_block floor2_lab_workbench']
+
+--- [Step 4: AI2-THOR Multi-Robot Execution] ---
+🏁 Multi-Robot Demonstration Complete!

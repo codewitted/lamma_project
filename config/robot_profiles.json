@@ -1,0 +1,36 @@
+{
+    "limo_scout": {
+        "type": "fast_scout",
+        "capabilities": [
+            "can_sense"
+        ],
+        "battery_capacity_wh": 100,
+        "idle_power_w": 5.0,
+        "move_power_w": 20.0,
+        "max_payload_kg": 0.0,
+        "base_speed_mps": 1.2
+    },
+    "limo_heavy": {
+        "type": "heavy_carrier",
+        "capabilities": [
+            "can_manipulate"
+        ],
+        "battery_capacity_wh": 200,
+        "idle_power_w": 10.0,
+        "move_power_w": 50.0,
+        "max_payload_kg": 5.0,
+        "base_speed_mps": 0.5
+    },
+    "limo_standard": {
+        "type": "balanced",
+        "capabilities": [
+            "can_sense",
+            "can_manipulate"
+        ],
+        "battery_capacity_wh": 150,
+        "idle_power_w": 7.0,
+        "move_power_w": 30.0,
+        "max_payload_kg": 2.0,
+        "base_speed_mps": 0.8
+    }
+}
