@@ -11,6 +11,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.llm_client import LLMClient
 from core.logger import BenchmarkingLogger
 from core.validator import PlanValidator
+from core.optimizer import MILPOptimizer
+from core.pddl_generator import PDDLGenerator
+from core.planner_client import FastDownwardClient
 from config import TESTCASES_DIR
 
 def run_eval(model: str, provider: str, trials: int, quantization: str, testcase: str):
@@ -46,17 +49,48 @@ def run_eval(model: str, provider: str, trials: int, quantization: str, testcase
 
     print(f"🚀 Starting evaluation for {model} ({provider}) - {trials} trials on testcase: {testcase}")
 
+    optimizer = MILPOptimizer()
+    pddl_gen = PDDLGenerator()
+    planner = FastDownwardClient()
+    domain_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'core', 'domain.pddl')
+
     for i in tqdm(range(trials)):
         # Inject initial state context if available
         prompt = instruction
         if initial_state_data:
-            prompt = f"Environment State: {json.dumps(initial_state_data.get('initial_state', []))}\n\nTask: {instruction}"
+            prompt = f"Environment State: {json.dumps(initial_state_data)}\n\nTask: {instruction}"
 
         result = client.parse_instruction(prompt)
         result["instruction_id"] = testcase
         result["quantization"] = quantization
         
-        # Calculate logical consistency score
+        if result['success']:
+            data = result['data']
+            
+            # 1. MILP Optimization
+            robots = data.get('robots', ['limo_1'])
+            tasks = data.get('tasks', [])
+            costs = {r: {t: 1.0 for t in tasks} for r in robots}
+            allocation = optimizer.allocate_tasks(robots, tasks, costs, {})
+            result["optimization_success"] = len(allocation) > 0
+            
+            # 2. PDDL Generation & Planning
+            pddl_problem = pddl_gen.generate_problem_skeleton(data)
+            
+            with open("temp_eval_problem.pddl", "w") as f:
+                f.write(pddl_problem)
+            
+            plan = planner.run_planner(domain_path, "temp_eval_problem.pddl")
+            
+            if plan:
+                result["planning_success"] = True
+                result["plan_length"] = len(plan)
+                result["executable_plan"] = json.dumps(plan)
+            else:
+                result["planning_success"] = False
+                result["plan_length"] = 0
+        
+        # Calculate logical consistency score (from LLM output alone)
         tasks = result.get("tasks", [])
         initial_preds = initial_state_data.get("initial_state", [])
         logical_score = PlanValidator.calculate_logical_score(tasks, initial_preds)

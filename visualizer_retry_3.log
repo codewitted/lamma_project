@@ -1,0 +1,46 @@
+2026-02-19 14:02:41,507 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-19 14:02:45,746 - INFO - Initialize return: {'cameraNearPlane': 0.009999999776482582, 'cameraFarPlane': 20.0}
+2026-02-19 14:02:45,746 - INFO - AI2-THOR Controller initialized on scene FloorPlan1
+2026-02-19 14:02:45,746 - INFO - Step 1: Executing move_to robot1 floor6_charging_dock floor_6_hallway
+2026-02-19 14:02:45,768 - INFO - Moved robot to floor_6_hallway at {'x': 0, 'y': 0, 'z': 0}
+2026-02-19 14:02:46,879 - INFO - Step 2: Executing pick_up robot1 red_block floor_6_hallway
+2026-02-19 14:02:46,879 - INFO - Robot picking up red_block
+2026-02-19 14:02:48,024 - INFO - Step 3: Executing move_to robot1 floor_6_hallway workbench
+2026-02-19 14:02:48,048 - INFO - Moved robot to workbench at {'x': 1.5, 'y': 0.95, 'z': 1.5}
+2026-02-19 14:02:49,170 - INFO - Step 4: Executing drop robot1 red_block workbench
+🌟 Starting Visual Demonstration: Pick up the red block from Floor 6 hallway, move it to the lab on Floor 2, and place it on the workbench.
+
+--- [Step 1: LLM Semantic Reasoning] ---
+Parsed JSON: {
+  "tasks": [
+    "pick_up",
+    "move",
+    "place"
+  ],
+  "objects": [
+    "red_block",
+    "floor_6_hallway",
+    "floor_2_lab",
+    "workbench"
+  ],
+  "initial_state": [
+    "at(red_block, floor_6_hallway)"
+  ],
+  "constraints": [],
+  "robots": [
+    "robot1"
+  ],
+  "goal_predicates": [
+    "at(red_block, workbench)"
+  ]
+}
+
+--- [Step 2: MILP Global Optimization] ---
+Allocations: {'robot1': ['pick_up', 'move', 'place']}
+
+--- [Step 3: Symbolic Planning (Fast Downward)] ---
+Sequential Plan: ['move_to robot1 floor6_charging_dock floor_6_hallway', 'pick_up robot1 red_block floor_6_hallway', 'move_to robot1 floor_6_hallway workbench', 'drop robot1 red_block workbench']
+
+--- [Step 4: AI2-THOR Visual Execution] ---
+Simulator started. Running actions...
+🏁 Visual Demonstration Complete!

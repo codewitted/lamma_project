@@ -38,7 +38,18 @@ class LLMClient:
         Includes schema enforcement and retry logic.
         """
         if system_prompt is None:
-            system_prompt = "You are a robotics planning assistant. Output ONLY valid JSON matching the schema."
+            system_prompt = f"""You are a robotics planning assistant. 
+Your goal is to parse natural language instructions into a structured JSON format for multi-robot coordination.
+You MUST output ONLY a valid JSON object matching this schema:
+{{
+  "tasks": ["task1", "task2"],
+  "objects": ["obj1", "obj2"],
+  "initial_state": ["predicate1(arg1)", "predicate2(arg1, arg2)"],
+  "constraints": ["constraint1"],
+  "robots": ["robot1", "robot2"],
+  "goal_predicates": ["predicate1(arg1)", "predicate2(arg1, arg2)"]
+}}
+Ensure all predicates use PDDL-style formatting like 'at(robot1, location1)'."""
 
         retries = 0
         while retries <= MAX_RETRIES:

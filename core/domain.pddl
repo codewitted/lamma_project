@@ -1,51 +1,61 @@
 (define (domain lamma_p_domain)
   (:requirements :strips :typing :negative-preconditions)
   (:types
-    object
-    location
-    robot - location
+    target - object
+    location object_type - target
+    robot - object_type
   )
 
   (:predicates
-    (at ?obj - object ?loc - location)
-    (on ?obj - object ?loc - location)
-    (inside ?obj - object ?container - object)
-    (holding ?obj - object)
-    (opened ?obj - object)
-    (closed ?obj - object)
-    (switchedOn ?obj - object)
-    (switchedOff ?obj - object)
-    (is_openable ?obj - object)
-    (is_toggleable ?obj - object)
+    (at ?obj - target ?loc - target)
+    (on ?obj - target ?loc - target)
+    (inside ?obj - target ?container - target)
+    (holding ?r - robot ?obj - target)
+    (opened ?obj - target)
+    (closed ?obj - target)
+    (switchedOn ?obj - target)
+    (switchedOff ?obj - target)
+    (is_openable ?obj - target)
+    (is_toggleable ?obj - target)
   )
 
   (:action move_to
-    :parameters (?r - robot ?from - location ?to - location)
+    :parameters (?r - robot ?from - target ?to - target)
     :precondition (at ?r ?from)
     :effect (and (at ?r ?to) (not (at ?r ?from))))
 
   (:action pick_up
-    :parameters (?obj - object ?loc - location)
-    :precondition (and (at fetch_robot ?loc) (at ?obj ?loc) (not (holding something))) ; something is a simplification
-    :effect (and (holding ?obj) (not (at ?obj ?loc))))
+    :parameters (?r - robot ?obj - target ?loc - target)
+    :precondition (and (at ?r ?loc) (at ?obj ?loc) (not (holding ?r ?obj))) ; simplified check
+    :effect (and (holding ?r ?obj) (not (at ?obj ?loc))))
 
   (:action open
-    :parameters (?obj - object)
-    :precondition (and (at fetch_robot ?obj) (is_openable ?obj) (closed ?obj))
+    :parameters (?r - robot ?obj - target)
+    :precondition (and (at ?r ?obj) (is_openable ?obj) (closed ?obj))
     :effect (and (opened ?obj) (not (closed ?obj))))
 
   (:action close
-    :parameters (?obj - object)
-    :precondition (and (at fetch_robot ?obj) (is_openable ?obj) (opened ?obj))
+    :parameters (?r - robot ?obj - target)
+    :precondition (and (at ?r ?obj) (is_openable ?obj) (opened ?obj))
     :effect (and (closed ?obj) (not (opened ?obj))))
 
   (:action switch_on
-    :parameters (?obj - object)
-    :precondition (and (at fetch_robot ?obj) (is_toggleable ?obj) (switchedOff ?obj))
+    :parameters (?r - robot ?obj - target)
+    :precondition (and (at ?r ?obj) (is_toggleable ?obj) (switchedOff ?obj))
     :effect (and (switchedOn ?obj) (not (switchedOff ?obj))))
 
   (:action switch_off
-    :parameters (?obj - object)
-    :precondition (and (at fetch_robot ?obj) (is_toggleable ?obj) (switchedOn ?obj))
+    :parameters (?r - robot ?obj - target)
+    :precondition (and (at ?r ?obj) (is_toggleable ?obj) (switchedOn ?obj))
     :effect (and (switchedOff ?obj) (not (switchedOn ?obj))))
+
+  (:action place
+    :parameters (?r - robot ?obj - target ?loc - target)
+    :precondition (and (at ?r ?loc) (holding ?r ?obj))
+    :effect (and (at ?obj ?loc) (not (holding ?r ?obj))))
+
+  (:action drop
+    :parameters (?r - robot ?obj - target ?loc - target)
+    :precondition (and (at ?r ?loc) (holding ?r ?obj))
+    :effect (and (at ?obj ?loc) (not (holding ?r ?obj))))
 )

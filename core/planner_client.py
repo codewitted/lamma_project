@@ -8,7 +8,7 @@ class FastDownwardClient:
     Client to interface with the Fast Downward planner.
     """
 
-    def __init__(self, executable_path: str = "/home/gautham/LaMMA-P/downward/builds/release/bin/downward"):
+    def __init__(self, executable_path: str = "/home/gautham/LaMMA-P/downward/fast-downward.py"):
         self.executable_path = executable_path
 
     def run_planner(self, domain_path: str, problem_path: str, alias: str = "llama-p-alias") -> Optional[List[str]]:
@@ -23,11 +23,14 @@ class FastDownwardClient:
         with tempfile.TemporaryDirectory() as tmpdir:
             plan_file = os.path.join(tmpdir, "sas_plan")
             
+            domain_abs = os.path.abspath(domain_path)
+            problem_abs = os.path.abspath(problem_path)
+            
             cmd = [
                 self.executable_path,
-                "--alias", "lama-first", # Using lama-first for balance of speed/quality
-                domain_path,
-                problem_path
+                "--alias", "lama-first", 
+                domain_abs,
+                problem_abs
             ]
             
             try:
