@@ -1,0 +1,13 @@
+{
+    "tasks": [
+        "move_to(workbench_a)",
+        "pick_up(metal_scrap)",
+        "move_to(waste_bin)",
+        "place(metal_scrap)",
+        "move_to(charging_station)"
+    ],
+    "goal_predicates": [
+        "inside(metal_scrap, waste_bin)",
+        "at(fetch_robot, charging_station)"
+    ]
+}

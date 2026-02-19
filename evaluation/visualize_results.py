@@ -24,12 +24,14 @@ def generate_comparison_charts():
     # Calculate metrics grouped by model and provider
     metrics = df.groupby(['model', 'provider']).agg({
         'success': 'mean',
+        'logical_score': 'mean',
         'latency': ['mean', 'std'],
         'retries': 'mean'
     }).reset_index()
 
-    metrics.columns = ['model', 'provider', 'validity_rate', 'latency_mean', 'latency_std', 'avg_retries']
+    metrics.columns = ['model', 'provider', 'validity_rate', 'logical_rate', 'latency_mean', 'latency_std', 'avg_retries']
     metrics['validity_rate'] *= 100
+    metrics['logical_rate'] *= 100
 
     # Professional Plotting Style
     plt.style.use('ggplot')
@@ -37,18 +39,19 @@ def generate_comparison_charts():
 
     # Plot Success Rate
     plt.figure(figsize=(10, 6))
-    bars = plt.bar(metrics['model'], metrics['validity_rate'], color=colors[:len(metrics)])
-    plt.title('LLM Parsing Reliability (JSON Validity)', fontsize=14, fontweight='bold')
+    x = range(len(metrics))
+    width = 0.35
+    
+    plt.bar([i - width/2 for i in x], metrics['validity_rate'], width, label='JSON Validity', color='#3498db')
+    plt.bar([i + width/2 for i in x], metrics['logical_rate'], width, label='Logical Consistency', color='#2ecc71')
+    
+    plt.title('Execution Readiness Analysis', fontsize=14, fontweight='bold')
     plt.ylabel('Success Rate (%)', fontsize=12)
+    plt.xticks(x, metrics['model'], rotation=45)
+    plt.legend()
     plt.ylim(0, 105)
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     
-    # Add values on top of bars
-    for bar in bars:
-        yval = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2, yval + 1, f'{yval:.1f}%', ha='center', va='bottom', fontweight='bold')
-
-    plt.xticks(rotation=45)
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, 'success_rate_comparison.png'), dpi=300)
     print(f"Generated success_rate_comparison.png")

@@ -1,0 +1,9 @@
+{
+    "objects": ["metal_scrap", "workbench_a", "waste_bin", "charging_station"],
+    "robots": ["fetch_robot"],
+    "initial_state": [
+        "at(fetch_robot, charging_station)",
+        "on(metal_scrap, workbench_a)",
+        "empty(waste_bin)"
+    ]
+}

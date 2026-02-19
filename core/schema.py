@@ -6,6 +6,7 @@ import logging
 class RoboticsTaskSchema(BaseModel):
     tasks: List[str] = Field(..., description="List of high-level tasks to be performed")
     objects: List[str] = Field(..., description="List of objects involved in the environment")
+    initial_state: List[str] = Field(default_factory=list, description="List of PDDL-style initial state predicates")
     constraints: List[str] = Field(..., description="List of operational or safety constraints")
     robots: List[str] = Field(..., description="List of robot agents involved")
     goal_predicates: List[str] = Field(..., description="List of PDDL-style goal predicates")
@@ -33,6 +34,7 @@ def get_empty_schema() -> Dict[str, Any]:
     return {
         "tasks": [],
         "objects": [],
+        "initial_state": [],
         "constraints": [],
         "robots": [],
         "goal_predicates": []

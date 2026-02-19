@@ -13,7 +13,7 @@ class BenchmarkingLogger:
         self.headers = [
             "timestamp", "model", "provider", "instruction_id", 
             "success", "latency", "retries", "json_valid", 
-            "fallback_used", "quantization"
+            "fallback_used", "quantization", "logical_score"
         ]
         
         # Initialize file with headers if it doesn't exist
@@ -36,7 +36,8 @@ class BenchmarkingLogger:
             "retries": trial_data.get("retries", 0),
             "json_valid": trial_data.get("success", False), # Success implies valid JSON in our flow
             "fallback_used": trial_data.get("fallback_occurred", False),
-            "quantization": trial_data.get("quantization", "none")
+            "quantization": trial_data.get("quantization", "none"),
+            "logical_score": trial_data.get("logical_score", 0.0)
         }
         
         with open(self.filepath, 'a', newline='') as f:

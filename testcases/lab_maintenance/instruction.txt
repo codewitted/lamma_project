@@ -1,0 +1,3 @@
+In the robotics lab, workbench_a is cluttered with metal_scrap. The waste_bin is located near the exit. 
+Please clean workbench_a by moving all metal_scrap to the waste_bin. 
+Then, navigate to the charging_station.

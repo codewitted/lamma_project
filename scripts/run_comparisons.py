@@ -17,11 +17,12 @@ def run_ablation():
     for model in MODELS:
         print(f"\n--- Evaluating Model: {model['name']} ---")
         cmd = [
-            "python3", "evaluation/run_floor6_eval.py",
+            "python3", "evaluation/run_eval.py",
             "--model", model["name"],
             "--provider", model["provider"],
             "--trials", str(TRIALS),
-            "--quantization", model["quantization"]
+            "--quantization", model["quantization"],
+            "--testcase", "lab_maintenance"
         ]
         
         try:
