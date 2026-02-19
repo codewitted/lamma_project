@@ -60,7 +60,7 @@ def main():
     # since FloorPlan6 might not literally be "Floor 6" in the way requested.
     # We will try FloorPlan1 (Kitchen) as a default if FloorPlan6 isn't found.
     try:
-        thor = ThorController(scene="FloorPlan1") # Common reliable scene
+        thor = ThorController(scene="FloorPlan1", num_agents=1) # Common reliable scene
         print("Simulator started. Running actions...")
         thor.execute_plan(plan)
         print("🏁 Visual Demonstration Complete!")

@@ -183,4 +183,27 @@ The Unity/AI2-THOR crash was addressed by:
 - **Action Completion**: Added missing `place` and `drop` actions to the domain.
 - **Initialization Overrides**: Optimized `ThorController` to use standard 600x600 rendering, which stabilized execution on this environment.
 
-The system is now **Research Ready** with both logical validation and visual verification.
+## 🤝 Phase 2: Heterogeneous Multi-Robot Coordination
+
+The framework has been scaled to coordinate a fleet of diverse LIMO robots, ensuring that tasks are assigned based on energy efficiency and physical capabilities.
+
+### 🍱 Multi-Robot Profiles
+I've defined a configuration-driven approach for heterogeneous fleets:
+- **`limo_scout`**: Optimized for search/sensing with low energy cost but no manipulation.
+- **`limo_heavy`**: High-payload carrier with manipulation capabilities but higher move cost.
+
+### 🔋 Energy & Capability Constraints
+The **MILP Global Optimizer** now solves for:
+- **Feasibility**: Ensuring a robot actually has the `can_manipulate` or `can_sense` capability for an assigned task.
+- **Sustainability**: Ensuring the total energy cost of a robot's assignment does not exceed its battery capacity.
+
+### 🧪 Multi-Robot Benchmark Result
+I verified the coordination using a "Search and Deliver" scenario:
+- **Scout** (`limo_scout1`) was automatically assigned the **search** task.
+- **Heavy Carrier** (`limo_heavy1`) was assigned the **pick and place** tasks.
+- **PDDL Plan**: 
+  ```text
+  ['move_to limo_scout1 hallway lab', 'search limo_scout1 red_block hallway', ...]
+  ```
+
+This confirms the system is now capable of sophisticated multi-agent orchestration for robotics.

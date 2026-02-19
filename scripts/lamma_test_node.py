@@ -67,12 +67,24 @@ class LaMMATestNode(Node):
             data = result['data']
             
             # 2. Optimize Task Allocation (MILP)
-            # For demonstration, we assume identity costs if not provided
-            robots = data.get('robots', ['limo_1'])
+            # Use real robots from result and assume standard costs
+            robots = data.get('robots', ['limo_scout1', 'limo_heavy1'])
             tasks = data.get('tasks', [])
-            costs = {r: {t: 1.0 for t in tasks} for r in robots}
+            
+            # Simple heuristic for travel costs: scout is faster/cheaper for search
+            costs = {}
+            for r in robots:
+                costs[r] = {}
+                for t in tasks:
+                    if "search" in t or "sense" in t:
+                        costs[r][t] = 1.0 if "scout" in r else 5.0
+                    elif "pick" in t or "place" in t:
+                        costs[r][t] = 5.0 if "scout" in r else 1.0
+                    else:
+                        costs[r][t] = 2.0
+            
             allocation = self.optimizer.allocate_tasks(robots, tasks, costs, {})
-            self.get_logger().info(f"Optimized Allocation: {allocation}")
+            self.get_logger().info(f"Optimized Multi-Robot Allocation: {allocation}")
 
             # 3. Generate PDDL (Structured Planning)
             pddl_problem = self.pddl_gen.generate_problem_skeleton(data)
@@ -89,7 +101,7 @@ class LaMMATestNode(Node):
                 out_msg = String()
                 out_msg.data = json.dumps({"plan": plan, "allocation": allocation})
                 self.publisher.publish(out_msg)
-                self.get_logger().info(f"Action plan generated and published: {plan}")
+                self.get_logger().info(f"Multi-robot action plan published: {plan}")
             else:
                 self.get_logger().info("Fast Downward failed to find a plan.")
         else:

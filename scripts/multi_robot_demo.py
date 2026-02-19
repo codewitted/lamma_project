@@ -15,7 +15,7 @@ def run_multi_robot_demo():
     pddl_gen = PDDLGenerator()
     optimizer = MILPOptimizer()
     planner = FastDownwardClient()
-    thor = ThorController(scene="FloorPlan1") # Representative scene
+    thor = ThorController(scene="FloorPlan1", num_agents=2) # 2 robots for demo
     
     instruction = "limo_scout1 search for the red_block. limo_heavy1 pick it up from floor6_hallway and place it on floor2_lab workbench."
     
@@ -52,7 +52,11 @@ def run_multi_robot_demo():
         
         print("\n--- [Step 4: AI2-THOR Multi-Robot Execution] ---")
         # In this demo, we execute sequentially for visual clarity
-        thor.execute_plan(plan)
+        thor.execute_plan(plan, wait_at_end=False)
+        
+        # New: 360 Cinematic Overview
+        thor.cinematic_pan()
+        
         print("🏁 Multi-Robot Demonstration Complete!")
     else:
         print("❌ Planning failed. Check domain/initial state.")
