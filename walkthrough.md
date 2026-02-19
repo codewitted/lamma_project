@@ -17,8 +17,15 @@ graph TD
     F --> G[RoboticsTaskSchema]
     A --> H[BenchmarkingLogger]
     H --> I[results.csv]
-    M[scripts/lamma_test_node.py] --> B
-    M --> N[PDDL Problem]
+    
+    subgraph "Hybrid Planning Pipeline"
+        M[scripts/lamma_test_node.py] --> B
+        M --> O[MILPOptimizer]
+        M --> P[PDDLGenerator]
+        P --> Q[FastDownwardClient]
+        Q --> R[Executable Action Plan]
+    end
+    
     J[visualize_results.py] --> I
     J --> K[PNG Charts]
 ```
@@ -86,10 +93,51 @@ As a production-grade research artefact, the system anticipates common failure p
 | **Connectivity Breaks** | `FALLBACK_TO_CLOUD` option allows seamless failover to OpenAI. |
 | **Reproducibility** | Fixed random seeds (Temp=0) and explicit quantization logging. |
 
-## 🚀 Ready for Research
+### 6. Constraint-Driven Optimization (MILP)
+The system now includes a `MILPOptimizer` (`core/optimizer.py`) using PuLP to:
+- **Minimize Global Utility**: Allocates tasks to robots based on travel costs.
+- **Support Multi-Robot Coordination**: Handles task distribution across LIMO robots.
 
-This framework is built for academic reproducibility:
-- **No hardcoded constants**.
-- **Comprehensive logging** (CSV).
-- **GPU-accelerated** support via Ollama.
-- **Easy model comparison** (Ollama models vs GPT-4o).
+### 7. Symbolic Planning with Fast Downward
+The `FastDownwardClient` (`core/planner_client.py`) bridges LLM reasoning with executable plans:
+- **PDDL Translation**: Generates PDDL problem files from instructions.
+- **Robust Planning**: Invokes Fast Downward to find optimal action sequences.
+
+## 🏁 The Finished Product: End-to-End Walkthrough
+
+The system operates as a **Hybrid Planning Brain** for LIMO robots, coordinating semantic intent with mathematical and logical rigor.
+
+```mermaid
+sequenceDiagram
+    participant U as User (Natural Language)
+    participant L as LLM Client (Semantic)
+    participant O as MILP Optimizer (Math)
+    participant G as PDDL Generator
+    participant P as Fast Downward (Logic)
+    participant R as LIMO Robots (ROS 2/Gazebo)
+
+    U->>L: "Pick up kit on Floor 6, move to Lab"
+    L->>O: Structured Tasks & Constraints
+    O->>G: Optimized Task Allocation
+    G->>P: PDDL Domain + Problem
+    P->>R: Sequential Action Plan (Move, Pick, Place)
+```
+
+### 1. Semantic Reasoning (LLM)
+The **LLM Client** interprets complex instructions like *"Prioritize Limo 2 for the heavy lifting"*, identifying goals and constraints that are hard to hardcode.
+
+### 2. Global Utility Optimization (MILP)
+The **MILP Optimizer** (`core/optimizer.py`) ensures global efficiency. It assigns tasks to the closest or most capable robot, minimizing battery drain and transit time.
+
+### 3. Symbolic Planning (Fast Downward)
+**Fast Downward** computes the exact, collision-free path. It respects physical constraints (like closed doors or avoiding elevators) defined in the PDDL domain.
+
+### 4. ROS 2 Coordination
+The **ROS 2 Node** (`scripts/lamma_test_node.py`) serves as the central hub, publishing optimized action plans that robots can execute in **AI2-THOR**, **Gazebo**, or the **Real World**.
+
+## 🚀 Research Readiness
+This framework generates all the data needed for publication-level reporting:
+- **Success Rate Charts**: Comparative performance of LLMs.
+- **Optimization Surface**: Efficiency gains from MILP.
+- **Planning Latency**: Benchmarking local vs. cloud execution.
+- **Visual Evidence**: State traces from AI2-THOR Floor 6.
