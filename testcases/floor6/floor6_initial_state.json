@@ -1,0 +1,10 @@
+{
+  "robots": ["turtlebot3_1"],
+  "objects": ["red_block", "workbench", "elevator_1"],
+  "locations": {
+    "red_block": "floor6_hallway",
+    "turtlebot3_1": "floor6_charging_dock",
+    "workbench": "floor2_lab"
+  },
+  "constraints": ["avoid_elevator_obstacles"]
+}

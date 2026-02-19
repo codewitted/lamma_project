@@ -1,0 +1,1 @@
+Pick up the red block from Floor 6, move it to the lab on Floor 2, and place it on the workbench. Avoid any obstacles near the elevators.
