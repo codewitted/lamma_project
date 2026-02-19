@@ -58,7 +58,8 @@ def run_eval(model: str, provider: str, trials: int, quantization: str, testcase
         
         # Calculate logical consistency score
         tasks = result.get("tasks", [])
-        logical_score = PlanValidator.calculate_logical_score(tasks)
+        initial_preds = initial_state_data.get("initial_state", [])
+        logical_score = PlanValidator.calculate_logical_score(tasks, initial_preds)
         result["logical_score"] = logical_score
         
         logger.log_trial(result)

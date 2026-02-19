@@ -1,0 +1,20 @@
+{
+    "tasks": [
+        "move_to(fridge)",
+        "open(fridge)",
+        "pick_up(apple)",
+        "close(fridge)",
+        "move_to(microwave)",
+        "open(microwave)",
+        "place(apple, microwave)",
+        "close(microwave)",
+        "move_to(coffee_machine)",
+        "switch_on(coffee_machine)",
+        "move_to(kitchen_center)"
+    ],
+    "goal_predicates": [
+        "inside(apple, microwave)",
+        "switchedon(coffee_machine)",
+        "at(fetch_robot, kitchen_center)"
+    ]
+}

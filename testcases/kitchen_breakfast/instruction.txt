@@ -1,0 +1,5 @@
+Scene: FloorPlan1 (Kitchen).
+You are a fetch robot in the kitchen. The fridge is closed and contains an apple.
+Instruction: Pick up the apple from the fridge and put it in the microwave. 
+Then, turn on the coffee_machine.
+Finally, return to the kitchen_center.

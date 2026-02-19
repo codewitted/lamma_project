@@ -14,10 +14,12 @@ class PDDLGenerator:
         
         # Helper to convert pred(a,b) to (pred a b)
         def format_predicate(p):
+            p = p.lower().strip()
             if "(" in p and ")" in p:
                 predicate = p.split("(")[0]
-                args = p.split("(")[1].split(")")[0].replace(",", "")
-                return f"({predicate} {args})"
+                args = [a.strip() for a in p.split("(")[1].split(")")[0].split(",")]
+                # Handle camelCase conversion for PDDL if needed, but keep simple for now
+                return f"({predicate} {' '.join(args)})"
             return f"({p})"
 
         # Convert initial state predicates

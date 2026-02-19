@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import re
 
 class PlanValidator:
@@ -8,7 +8,7 @@ class PlanValidator:
     """
 
     @staticmethod
-    def validate_task_sequence(tasks: List[str]) -> bool:
+    def validate_task_sequence(tasks: List[str], initial_predicates: Optional[List[str]] = None) -> bool:
         """
         Validates if the sequence of tasks is logically sound.
         Returns True if valid, False otherwise.
@@ -16,53 +16,91 @@ class PlanValidator:
         if not tasks:
             return True
 
-        # Track robot state
+        # Track state
         holding = None
         current_location = None
+        # obj -> state (e.g., 'fridge' -> 'closed', 'stove' -> 'off')
+        states = {}
+        # obj -> contents (list of objects inside)
+        containers = {}
+
+        # Initialize from predicates if provided
+        if initial_predicates:
+            for p in initial_predicates:
+                p = p.lower().strip()
+                match = re.search(r"(\w+)\((.*)\)", p)
+                if not match: continue
+                pred, args = match.group(1), [a.strip() for a in match.group(2).split(",")]
+                
+                if pred == "closed": states[args[0]] = "closed"
+                elif pred == "opened": states[args[0]] = "opened"
+                elif pred == "switchedon": states[args[0]] = "on"
+                elif pred == "switchedoff": states[args[0]] = "off"
+                elif pred == "inside":
+                    obj, container = args[0], args[1]
+                    if container not in containers: containers[container] = []
+                    containers[container].append(obj)
 
         for task in tasks:
             task = task.lower().strip()
-            
-            # Extract action and arguments
             match = re.search(r"(\w+)\((.*)\)", task)
-            if not match:
-                continue
-                
-            action = match.group(1)
-            args = [a.strip() for a in match.group(2).split(",")]
+            if not match: continue
+            action, args = match.group(1), [a.strip() for a in match.group(2).split(",")]
 
             if action == "pick_up":
-                # Can't pick up if already holding something
-                if holding:
-                    return False
-                holding = args[0]
+                obj = args[0]
+                if holding: return False # Already holding something
+                
+                # AI2-THOR check: is it inside a closed container?
+                for container, contents in containers.items():
+                    if obj in contents:
+                        if states.get(container) == "closed":
+                            return False # Cannot pick up from closed container
+                
+                holding = obj
             
             elif action == "place" or action == "drop":
-                # Can't place if not holding anything
-                if not holding:
-                    return False
-                # If placing a specific object, must be holding it
-                if len(args) > 0 and args[0] != holding:
-                    return False
+                if not holding: return False
+                if len(args) > 0 and args[0] != holding: return False
+                
+                # If placing inside a container, check if it's open
+                if len(args) > 1:
+                    container = args[1]
+                    if states.get(container) == "closed":
+                        return False # Cannot place in closed container
+                
                 holding = None
             
+            elif action == "open":
+                obj = args[0]
+                states[obj] = "opened"
+            
+            elif action == "close":
+                obj = args[0]
+                states[obj] = "closed"
+            
+            elif action == "switch_on":
+                obj = args[0]
+                states[obj] = "on"
+            
+            elif action == "switch_off":
+                obj = args[0]
+                states[obj] = "off"
+
             elif action == "move_to" or action == "navigate":
-                target = args[0]
-                # If we were already at a location, moving to the same location is redundant but not necessarily invalid
-                # However, moving while holding something is fine
-                current_location = target
+                current_location = args[0]
 
         return True
 
     @staticmethod
-    def calculate_logical_score(tasks: List[str]) -> float:
+    def calculate_logical_score(tasks: List[str], initial_predicates: Optional[List[str]] = None) -> float:
         """
         Returns a score between 0 and 1 based on task consistency.
         """
         if not tasks:
             return 1.0
         
-        return 1.0 if PlanValidator.validate_task_sequence(tasks) else 0.0
+        return 1.0 if PlanValidator.validate_task_sequence(tasks, initial_predicates) else 0.0
 
 if __name__ == "__main__":
     # Test cases

@@ -28,27 +28,32 @@ The `LLMClient` provides a unified interface for both cloud (OpenAI) and local (
 ### 2. Strict JSON Schema Enforcement
 We use **Pydantic** to define a strict schema for robotics tasks. Any response that doesn't match the schema is automatically rejected and retried once.
 
-### 3. "Floor 6" Benchmark Harness
-A dedicated script `run_floor6_eval.py` handles multi-trial evaluations of the standard "Floor 6" test case, logging every aspect of the performance.
+### 3. State-Aware Logical Validation
+The `PlanValidator` now tracks object states (opened/closed, toggleable on/off). It enforces physical constraints from AI2-THOR, such as:
+- **Container Constraint**: Cannot pick up an object from a closed fridge or drawer.
+- **State Constraint**: Cannot place an object inside a closed microwave.
+- **Toggleable Support**: Tracks the state of machines like coffee makers or stoves.
 
-### 4. Symbolic Planning Bridge (PDDL)
-The `PDDLGenerator` class automatically converts the LLM's JSON output into PDDL problem snippets. This ensures direct compatibility with Fast Downward and ROS2 planning pipelines.
+### 4. Advanced PDDL Generation
+The `PDDLGenerator` supports **initial state predicates** and is aligned with AI2-THOR's logical representation (`opened`, `closed`, `switchedOn`). This ensures plans are compatible with standard symbolic planners.
 
-### 5. Automated Ablation Runner
-The `scripts/run_comparisons.py` utility allows you to iterate through multiple models (e.g., Mistral, Phi, GPT-4o) in a single command, automating the entire evaluation and visualization flow.
+### 5. AI2-THOR Benchmarking Scenarios
+We've generalized the evaluation harness to support AI2-THOR floor plans (e.g., `FloorPlan1`) and object categories.
+- **Kitchen Breakfast**: A dedicated test case where the agent must interact with a fridge, microwave, and coffee machine.
+- **Lab Maintenance**: A multi-step cleaning task.
 
 ## 📈 Example Result Visualization
 
 After running a benchmark, the `visualize_results.py` script aggregates all trials and generates comparative analysis:
 
-- **Success Rate Comparison**: Visualizes the percentage of trials that resulted in valid JSON.
+- **Execution Readiness**: Compares JSON validity and logical consistency across different models.
 - **Latency Analysis**: Compares the average token generation speed across different models and quantizations.
 
 ## 📝 Usage Commands
 
-### Run Evaluation
+### Run AI2-THOR Evaluation
 ```bash
-python evaluation/run_floor6_eval.py --model mistral:7b --provider ollama --trials 10
+python evaluation/run_eval.py --model mistral:7b --provider ollama --trials 10 --testcase kitchen_breakfast
 ```
 
 ### Run Automated Ablation Study

@@ -1,0 +1,20 @@
+{
+    "scene": "FloorPlan1",
+    "objects": [
+        "apple",
+        "fridge",
+        "microwave",
+        "coffee_machine",
+        "kitchen_center"
+    ],
+    "robots": [
+        "fetch_robot"
+    ],
+    "initial_state": [
+        "at(fetch_robot, kitchen_center)",
+        "closed(fridge)",
+        "inside(apple, fridge)",
+        "switchedoff(coffee_machine)",
+        "closed(microwave)"
+    ]
+}
