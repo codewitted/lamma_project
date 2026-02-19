@@ -69,7 +69,7 @@ def run_eval(model: str, provider: str, trials: int, quantization: str, testcase
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LaMMA-P Evaluation Harness")
     parser.add_argument("--model", type=str, required=True, help="LLM model name")
-    parser.add_argument("--provider", type=str, default="ollama", choices=["openai", "ollama"], help="LLM provider")
+    parser.add_argument("--provider", type=str, default="ollama", choices=["openai", "ollama", "openwebui"], help="LLM provider")
     parser.add_argument("--trials", type=int, default=10, help="Number of trials")
     parser.add_argument("--quantization", type=str, default="none", help="Quantization level (e.g. Q4_K_M)")
     parser.add_argument("--testcase", type=str, default="floor6", help="Name of the testcase folder")
