@@ -8,22 +8,25 @@ The system is built to be modular and research-ready, with a clear separation be
 
 ```mermaid
 graph TD
-    A[run_floor6_eval.py] --> B[LLMClient]
+    A[run_eval.py] --> B[LLMClient]
     B --> C{Provider?}
     C -- OpenAI --> D[GPT-4o/etc]
-    C -- Ollama --> E[Mistral/Phi/etc]
+    C -- Ollama --> E[Local Models]
+    C -- Open WebUI --> L[Centralized Local Hub]
     B --> F[Schema Validator]
     F --> G[RoboticsTaskSchema]
     A --> H[BenchmarkingLogger]
     H --> I[results.csv]
+    M[scripts/lamma_test_node.py] --> B
+    M --> N[PDDL Problem]
     J[visualize_results.py] --> I
     J --> K[PNG Charts]
 ```
 
 ## 🛠 Key Features
 
-### 1. Swappable LLM Adapter
-The `LLMClient` provides a unified interface for both cloud (OpenAI) and local (Ollama) models. Switching is as simple as updating an environment variable.
+### 1. Swappable LLM Adapter (Open WebUI Support)
+The `LLMClient` provides a unified interface for OpenAI, Ollama, and **Open WebUI**. This allows you to leverage your existing local infrastructure while minimizing costs.
 
 ### 2. Strict JSON Schema Enforcement
 We use **Pydantic** to define a strict schema for robotics tasks. Any response that doesn't match the schema is automatically rejected and retried once.
@@ -53,7 +56,12 @@ After running a benchmark, the `visualize_results.py` script aggregates all tria
 
 ### Run AI2-THOR Evaluation
 ```bash
-python evaluation/run_eval.py --model mistral:7b --provider ollama --trials 10 --testcase kitchen_breakfast
+python evaluation/run_eval.py --model mistral:7b --provider openwebui --trials 10 --testcase kitchen_breakfast
+```
+
+### Start ROS2 Test Node (MOCK Mode)
+```bash
+python scripts/lamma_test_node.py
 ```
 
 ### Run Automated Ablation Study

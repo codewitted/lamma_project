@@ -6,7 +6,8 @@ import openai
 from config import (
     LLM_PROVIDER, LLM_MODEL, OLLAMA_BASE_URL, 
     OPENAI_API_KEY, TEMPERATURE, MAX_RETRIES,
-    FALLBACK_TO_CLOUD, CLOUD_FALLBACK_MODEL
+    FALLBACK_TO_CLOUD, CLOUD_FALLBACK_MODEL,
+    OPEN_WEBUI_BASE_URL, OPEN_WEBUI_API_KEY
 )
 from core.schema import validate_json_response, get_empty_schema
 
@@ -22,6 +23,11 @@ class LLMClient:
             self.client = openai.OpenAI(
                 base_url=OLLAMA_BASE_URL,
                 api_key="ollama"  # placeholder
+            )
+        elif self.provider == "openwebui":
+            self.client = openai.OpenAI(
+                base_url=OPEN_WEBUI_BASE_URL,
+                api_key=OPEN_WEBUI_API_KEY if OPEN_WEBUI_API_KEY else "open-webui"
             )
         else:
             raise ValueError(f"Unsupported provider: {self.provider}")
